@@ -96,7 +96,7 @@ export default function GenerateImage() {
             <div className="p-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
               <h2 className="text-2xl font-bold mb-6">Upload Your Image</h2>
               <p className="mb-8 opacity-90">
-                Select an image with watermarks that you'd like to remove. Our advanced AI will process it for you.
+                Select an image with watermarks that you&apos;d like to remove. Our advanced AI will process it for you.
               </p>
 
               <div className="mb-6">
