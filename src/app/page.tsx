@@ -18,19 +18,21 @@ export default function GenerateImage() {
   const [generationCount, setGenerationCount] = useState(0);
   const [stars, setStars] = useState<number>(0);
 
-  // Load generation count from localStorage on component mount
   useEffect(() => {
-    try {
-      const storedCount = localStorage.getItem("imageGenerationCount");
-      if (storedCount) {
-        setGenerationCount(parseInt(storedCount, 10));
-        // console.log('Loaded generation count from localStorage:', parseInt(storedCount, 10));
-      } else {
-        // console.log('No existing generation count found in localStorage');
+    function loadGenerationCount() {
+      try {
+        const storedCount = localStorage.getItem("imageGenerationCount");
+        if (storedCount) {
+          setGenerationCount(parseInt(storedCount, 10));
+        }
+      } catch (err) {
+        console.error("Failed to access localStorage:", err);
       }
-    } catch (err) {
-      console.error("Failed to access localStorage:", err);
     }
+    const interval = setInterval(() => {
+      loadGenerationCount();
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch GitHub stars
@@ -55,7 +57,7 @@ export default function GenerateImage() {
       try {
         const file = e.target.files[0];
         setImage(file);
-        // Create a preview with resizing for performance
+
         const resizedImage = await resizeImageToDataURL(file, 800, 800);
         setImagePreview(resizedImage);
       } catch (err) {
@@ -172,10 +174,12 @@ export default function GenerateImage() {
               Our advanced AI technology doesn&apos;t just remove watermarks—it
               absolutely obliterates them.
             </p>
-            {generationCount > 5 && (
+            {generationCount >
+              parseInt(process.env.NEXT_PUBLIC_MAX_GENERATIONS || "0") && (
               <p className="text-sm text-red-600 mt-2">
-                You have exhausted your limit of 5 generations. Please try again
-                later.
+                You have exhausted your limit of{" "}
+                {process.env.NEXT_PUBLIC_MAX_GENERATIONS} generations. Please
+                try again later.
               </p>
             )}
           </motion.div>
@@ -256,7 +260,7 @@ export default function GenerateImage() {
               <button
                 type="button"
                 onClick={handleImageUpload}
-                disabled={!image || loading || generationCount > 5}
+                disabled={!image || loading || generationCount > parseInt(process.env.NEXT_PUBLIC_MAX_GENERATIONS || "0")}
                 className={`w-full cursor-pointer py-3 px-4 rounded-xl font-medium text-base flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed
                   ${
                     !image || loading
